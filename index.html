@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Liberação dos Expressos · PortoEX</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{
+  --navy:#1B1F4B; --orange:#F26522;
+  --bg:#F3F4F8; --surface:#FFFFFF; --surface-2:#EEF0F6; --line:#DADDE8;
+  --ink:#1B1F4B; --ink-2:#4A4F74; --muted:#7A7F9E;
+  --c1:#F26522; --c2:#1B1F4B; --c3:#3E8ED0; --c4:#2FA37A; --c5:#A06CD5; --c6:#C9A227;
+  --ok:#2FA37A; --bad:#D64545; --bar:#1B1F4B;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){--bg:#0F1230;--surface:#171B3D;--surface-2:#1F2450;--line:#2C3263;--ink:#EDEEF6;--ink-2:#C1C4DC;--muted:#8C91B5;--c2:#AEB6F5;--bar:#0A0C24}
+}
+:root[data-theme="dark"]{--bg:#0F1230;--surface:#171B3D;--surface-2:#1F2450;--line:#2C3263;--ink:#EDEEF6;--ink-2:#C1C4DC;--muted:#8C91B5;--c2:#AEB6F5;--bar:#0A0C24}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 "Barlow",system-ui,-apple-system,"Segoe UI",sans-serif}
+td.t,.big{font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-variant-numeric:tabular-nums}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--orange);outline-offset:2px}
+
+header{background:var(--bar);color:#fff;position:sticky;top:env(safe-area-inset-top,0px);z-index:20}
+.hwrap{max-width:1240px;margin:0 auto;padding:12px 20px;display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.brand{display:flex;align-items:baseline;gap:10px;margin-right:auto}
+.brand .px{font:700 22px/1 "Barlow Condensed",sans-serif;letter-spacing:.5px}
+.brand .px span{color:var(--orange)}
+.brand .ttl{font-size:14px;opacity:.8}
+nav{display:flex;gap:4px;background:rgba(255,255,255,.08);border-radius:8px;padding:3px}
+nav button{background:none;border:0;color:#fff;padding:6px 14px;border-radius:6px;cursor:pointer;font-weight:600;opacity:.75}
+nav button[aria-selected="true"]{background:var(--orange);opacity:1}
+.period{display:flex;gap:8px;align-items:center;font-size:14px}
+.period select{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;border-radius:6px;padding:5px 8px}
+.period select option{color:#1B1F4B}
+
+main{max-width:1240px;margin:0 auto;padding:20px}
+.banner{background:#FFF1E8;color:#8A3A0C;border-left:4px solid var(--orange);padding:10px 14px;border-radius:6px;margin-bottom:16px;display:none}
+section[hidden]{display:none!important}
+h2{font:700 26px/1.1 "Barlow Condensed",sans-serif;margin:4px 0 14px}
+h3{font-size:16px;font-weight:600;margin:0 0 2px}
+.card p.sub{margin:0 0 12px;color:var(--muted);font-size:13px}
+.grid{display:grid;grid-template-columns:1.6fr 1fr;gap:14px;margin-bottom:14px}
+.grid.eq{grid-template-columns:1fr 1fr}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px}
+.chart{position:relative;height:300px}
+.chart.pie{height:260px}
+@media (max-width:860px){.grid,.grid.eq{grid-template-columns:1fr}}
+
+.tbl{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th{text-align:left;font-weight:600;color:var(--muted);font-size:13px;padding:7px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:middle}
+td.t{font-size:17px;white-space:nowrap}
+td.rk{color:var(--muted);font-family:"Barlow Condensed",sans-serif;font-size:16px;width:28px}
+tr:last-child td{border-bottom:0}
+.hr{display:flex;align-items:center;gap:8px}
+.hr .b{height:8px;border-radius:4px;background:var(--orange);min-width:4px}
+.hr.base .b{background:var(--c2)}
+.chip{display:inline-block;background:var(--surface-2);border-radius:5px;padding:2px 7px;margin:2px 4px 2px 0;font-size:13px;white-space:nowrap}
+.chip b{font-weight:600}
+.pielegend{display:flex;gap:18px;justify-content:center;margin-top:10px;flex-wrap:wrap}
+.pielegend div{display:flex;gap:8px;align-items:center;font-size:14px}
+.pielegend i{width:12px;height:12px;border-radius:3px;background:var(--c)}
+.pielegend b{font:700 20px/1 "Barlow Condensed",sans-serif}
+
+.formcard{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:20px;max-width:980px}
+.fields{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px 14px}
+.f label{display:block;font-size:13px;font-weight:600;color:var(--ink-2);margin-bottom:4px}
+.f input,.f select{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:8px 10px;min-height:40px}
+.colhead{display:flex;justify-content:space-between;align-items:center;margin:22px 0 8px}
+.colrow{display:grid;grid-template-columns:1.4fr repeat(3,1fr) 1.6fr 36px;gap:8px;align-items:end;padding:10px 0;border-top:1px dashed var(--line)}
+.colrow .f label{font-size:12px}
+@media (max-width:760px){.colrow{grid-template-columns:1fr 1fr}.colrow .f:first-child,.colrow .f.obs{grid-column:1/-1}}
+.btn{border:0;border-radius:7px;padding:10px 18px;font-weight:600;cursor:pointer}
+.btn.pri{background:var(--orange);color:#fff}
+.btn.sec{background:var(--surface-2);color:var(--ink)}
+.btn.lnk{background:none;padding:4px 6px;color:var(--ink-2);text-decoration:underline;font-weight:500}
+.btn.lnk.del{color:var(--bad)}
+.btn.x{background:none;border:1px solid var(--line);width:36px;height:40px;padding:0;color:var(--muted);font-size:18px}
+.actions{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;align-items:center}
+.msg{font-size:14px;font-weight:600}
+.msg.ok{color:var(--ok)} .msg.err{color:var(--bad)}
+.editing{background:var(--surface-2);border-radius:6px;padding:8px 12px;margin-bottom:14px;font-size:14px;display:none}
+.empty{color:var(--muted);padding:24px;text-align:center}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<header>
+  <div class="hwrap">
+    <div class="brand"><div class="px">PORTO<span>EX</span></div><div class="ttl">Liberação dos expressos</div></div>
+    <nav role="tablist">
+      <button role="tab" aria-selected="true" data-tab="dash">Dashboard</button>
+      <button role="tab" aria-selected="false" data-tab="lancar">Lançar</button>
+      <button role="tab" aria-selected="false" data-tab="reg">Registros</button>
+    </nav>
+    <div class="period"><label for="period">Período</label><select id="period"></select></div>
+  </div>
+</header>
+
+<main>
+  <div class="banner" id="banner"></div>
+
+  <section id="tab-dash">
+    <div class="grid">
+      <div class="card"><h3>Dias de expresso por cliente</h3><p class="sub" id="s-cli"></p><div class="chart"><canvas id="chCli"></canvas></div></div>
+      <div class="card"><h3>Carreta ou truck</h3><p class="sub" id="s-vei"></p><div class="chart pie"><canvas id="chVei"></canvas></div><div class="pielegend" id="lgVei"></div></div>
+    </div>
+    <div class="grid eq">
+      <div class="card"><h3>Top 10 · liberado da base mais tarde</h3><p class="sub">Depois da meia-noite conta como o mesmo dia</p><div class="tbl" id="topLib"></div></div>
+      <div class="card"><h3>Top 10 · chegada na base mais tarde</h3><p class="sub">Retorno do cliente para a base</p><div class="tbl" id="topBase"></div></div>
+    </div>
+    <div class="card"><h3>Horário disponível para expedição</h3><p class="sub" id="s-disp"></p><div class="chart"><canvas id="chDisp"></canvas></div></div>
+  </section>
+
+  <section id="tab-lancar" hidden>
+    <h2>Lançar liberação</h2>
+    <form class="formcard" id="formExp" autocomplete="off" onsubmit="return false">
+      <div class="editing" id="editExp"></div>
+      <div class="fields">
+        <div class="f"><label for="e-data">Data</label><input type="date" id="e-data" required></div>
+        <div class="f"><label for="e-veic">Veículo</label><select id="e-veic"><option>Carreta</option><option>Truck</option></select></div>
+        <div class="f"><label for="e-disp">Disponível p/ expedição</label><input type="time" id="e-disp"></div>
+        <div class="f"><label for="e-ini">Início de carregamento</label><input type="time" id="e-ini"></div>
+        <div class="f"><label for="e-lib">Horário liberado da base</label><input type="time" id="e-lib"></div>
+      </div>
+      <div class="colhead"><h3 style="margin:0">Clientes</h3><button type="button" class="btn sec" id="addCol">Adicionar cliente</button></div>
+      <div id="coletas"></div>
+      <datalist id="dlCli"></datalist>
+      <div class="actions">
+        <button type="button" class="btn pri" id="saveExp">Salvar liberação</button>
+        <button type="button" class="btn sec" id="clearExp">Limpar</button>
+        <span class="msg" id="msgExp" role="status"></span>
+      </div>
+    </form>
+  </section>
+
+  <section id="tab-reg" hidden>
+    <h2>Registros</h2>
+    <div class="card"><div class="tbl" id="regExp"></div></div>
+  </section>
+</main>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, doc, addDoc, setDoc, deleteDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { firebaseConfig } from "./firebase-config.js";
+(function(){
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const doc_=id=>doc(S.db,'expressos',id);
+const S={exp:[],period:'',db:null,editExp:null};
+const MES=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+const toMin=s=>{if(!s||typeof s!=='string')return null;const m=s.match(/^(\d{1,2}):(\d{2})/);return m?(+m[1])*60+(+m[2]):null};
+const late=v=>v==null?null:(v<360?v+1440:v);
+const fm=v=>{if(v==null||isNaN(v))return'—';v=Math.round(v);const h=Math.floor(v/60)%24,m=v%60;return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')};
+const avg=a=>{a=a.filter(x=>x!=null&&!isNaN(x));return a.length?a.reduce((s,x)=>s+x,0)/a.length:null};
+const fdate=d=>{const[y,m,dd]=d.split('-');return dd+'/'+m};
+const fdateL=d=>{const[y,m,dd]=d.split('-');return dd+'/'+m+'/'+y};
+const WD=['dom','seg','ter','qua','qui','sex','sáb'];
+const wd=d=>WD[new Date(d+'T12:00:00').getDay()];
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+
+$$('nav button').forEach(b=>b.onclick=()=>showTab(b.dataset.tab));
+function showTab(t){$$('nav button').forEach(b=>b.setAttribute('aria-selected',b.dataset.tab===t));['dash','lancar','reg'].forEach(x=>$('#tab-'+x).hidden=x!==t);if(t==='dash')renderDash();}
+
+function buildPeriod(){
+  const ms=[...new Set(S.exp.map(r=>r.data&&r.data.slice(0,7)).filter(Boolean))].sort().reverse(),sel=$('#period'),cur=S.period;
+  sel.innerHTML='<option value="all">Todo o período</option>'+ms.map(m=>`<option value="${m}">${MES[+m.slice(5)-1]}/${m.slice(0,4)}</option>`).join('');
+  S.period=(cur&&(cur==='all'||ms.includes(cur)))?cur:'all';sel.value=S.period;
+}
+$('#period').onchange=e=>{S.period=e.target.value;renderDash();renderReg();};
+const rows=()=>S.exp.filter(r=>S.period==='all'||(r.data||'').startsWith(S.period)).sort((a,b)=>(a.data||'').localeCompare(b.data||''));
+
+/* ---------- dashboard ---------- */
+const charts={};
+function put(id,cfg){if(charts[id])charts[id].destroy();if(!window.Chart)return;charts[id]=new Chart(document.getElementById(id),cfg);}
+function baseOpts(){const ink=css('--ink-2'),grid=css('--line');return{responsive:true,maintainAspectRatio:false,
+  plugins:{legend:{display:false}},
+  scales:{x:{ticks:{color:ink,font:{family:'Barlow'},maxRotation:0,autoSkip:true},grid:{display:false}},y:{ticks:{color:ink,font:{family:'Barlow'}},grid:{color:grid}}}};}
+
+function renderDash(){
+  if($('#tab-dash').hidden)return;
+  const er=rows();
+
+  // 1. dias de expresso por cliente
+  const dias=new Map();
+  er.forEach(r=>(r.coletas||[]).forEach(c=>{if(!c.cliente)return;if(!dias.has(c.cliente))dias.set(c.cliente,new Set());dias.get(c.cliente).add(r.data)}));
+  const cl=[...dias.entries()].map(([n,s])=>[n,s.size]).sort((a,b)=>b[1]-a[1]);
+  const totDias=new Set(er.map(r=>r.data)).size;
+  $('#s-cli').textContent=`${totDias} dias com expresso no período`;
+  const o1=baseOpts();o1.indexAxis='y';o1.scales.x.grid={color:css('--line')};o1.scales.y.grid={display:false};o1.scales.x.ticks.precision=0;
+  o1.plugins.tooltip={callbacks:{label:c=>c.parsed.x+' dias'+(totDias?' ('+Math.round(c.parsed.x/totDias*100)+'% dos dias)':'')}};
+  put('chCli',{type:'bar',data:{labels:cl.map(x=>x[0]),datasets:[{data:cl.map(x=>x[1]),backgroundColor:css('--c1'),borderRadius:3}]},options:o1,
+    plugins:[{id:'lbl',afterDatasetsDraw(ch){const{ctx}=ch;ctx.save();ctx.fillStyle=css('--ink');ctx.font='600 13px Barlow';ctx.textBaseline='middle';
+      ch.getDatasetMeta(0).data.forEach((b,i)=>ctx.fillText(cl[i][1],b.x+6,b.y));ctx.restore();}}]});
+
+  // 2. carreta x truck
+  const vc=new Map();er.forEach(r=>{const v=r.veiculo||'—';vc.set(v,(vc.get(v)||0)+1)});
+  const vv=[...vc.entries()].sort((a,b)=>b[1]-a[1]),tot=er.length,pal=['--c1','--c2','--c3','--c4'];
+  $('#s-vei').textContent=`${tot} liberações no período`;
+  put('chVei',{type:'doughnut',data:{labels:vv.map(x=>x[0]),datasets:[{data:vv.map(x=>x[1]),backgroundColor:vv.map((x,i)=>css(pal[i%4])),borderColor:css('--surface'),borderWidth:3}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'0%',plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.label+': '+c.parsed+' ('+Math.round(c.parsed/tot*100)+'%)'}}}}});
+  $('#lgVei').innerHTML=vv.map((x,i)=>`<div style="--c:var(${pal[i%4]})"><i></i>${esc(x[0])} <b>${x[1]}</b> <span style="color:var(--muted)">${Math.round(x[1]/tot*100)}%</span></div>`).join('');
+
+  // 3. top 10 liberado mais tarde
+  const tl=er.map(r=>({r,v:late(toMin(r.liberado))})).filter(x=>x.v!=null).sort((a,b)=>b.v-a.v).slice(0,10);
+  $('#topLib').innerHTML=tl.length?table(tl,x=>`<td>${fdateL(x.r.data)} <span style="color:var(--muted)">${wd(x.r.data)}</span></td><td>${esc(x.r.veiculo)}</td>`,
+    '<th>Data</th><th>Veículo</th>','',tl[tl.length-1].v,tl[0].v):'<div class="empty">Sem dados no período.</div>';
+
+  // 4. top 10 chegada na base mais tarde
+  const tb=[];er.forEach(r=>(r.coletas||[]).forEach(c=>{const v=toMin(c.chegadaBase);if(v!=null)tb.push({r,c,v})}));
+  tb.sort((a,b)=>b.v-a.v);const t10=tb.slice(0,10);
+  $('#topBase').innerHTML=t10.length?table(t10,x=>`<td>${fdateL(x.r.data)} <span style="color:var(--muted)">${wd(x.r.data)}</span></td><td>${esc(x.c.cliente)}</td>`,
+    '<th>Data</th><th>Cliente</th>','base',t10[t10.length-1].v,t10[0].v):'<div class="empty">Sem dados no período.</div>';
+
+  // 5. disponível para expedição
+  const dp=er.filter(r=>toMin(r.disponivel)!=null);
+  const md=avg(dp.map(r=>toMin(r.disponivel)));
+  $('#s-disp').textContent=dp.length?`Média ${fm(md)} · mais cedo ${fm(Math.min(...dp.map(r=>toMin(r.disponivel))))} · mais tarde ${fm(Math.max(...dp.map(r=>toMin(r.disponivel))))} · ${er.length-dp.length} dia(s) sem horário lançado`:'Sem horários lançados no período.';
+  const o5=baseOpts();o5.scales.y.ticks.callback=v=>fm(v);o5.scales.y.ticks.stepSize=60;
+  o5.plugins.legend={display:true,position:'bottom',labels:{color:css('--ink-2'),boxWidth:12,font:{family:'Barlow'}}};
+  o5.plugins.tooltip={callbacks:{title:c=>fdateL(dp[c[0].dataIndex].data)+' · '+dp[c[0].dataIndex].veiculo,label:c=>c.dataset.label+': '+fm(c.parsed.y)}};
+  put('chDisp',{type:'line',data:{labels:dp.map(r=>fdate(r.data)),datasets:[
+    {label:'Disponível p/ expedição',data:dp.map(r=>toMin(r.disponivel)),borderColor:css('--c3'),backgroundColor:css('--c3'),tension:.2,pointRadius:dp.length>45?2:3,borderWidth:2},
+    {label:'Média',data:dp.map(()=>md==null?null:Math.round(md)),borderColor:css('--c1'),borderDash:[6,4],pointRadius:0,borderWidth:2}]},options:o5});
+}
+function table(list,cells,head,cls,min,max){
+  const span=Math.max(max-min,1);
+  return`<table><thead><tr><th>#</th>${head}<th>Horário</th></tr></thead><tbody>${list.map((x,i)=>`<tr><td class="rk">${i+1}</td>${cells(x)}
+    <td class="t"><div class="hr ${cls}"><span style="min-width:44px">${fm(x.v)}</span><span class="b" style="width:${Math.round(10+(x.v-min)/span*70)}px"></span></div></td></tr>`).join('')}</tbody></table>`;
+}
+
+/* ---------- lançar ---------- */
+function colRow(c={}){
+  const d=document.createElement('div');d.className='colrow';
+  d.innerHTML=`<div class="f"><label>Cliente</label><input list="dlCli" class="c-cli" value="${esc(c.cliente||'')}"></div>
+  <div class="f"><label>Chegada</label><input type="time" class="c-ch" value="${esc(c.chegada||'')}"></div>
+  <div class="f"><label>Saída</label><input type="time" class="c-sa" value="${esc(c.saida||'')}"></div>
+  <div class="f"><label>Chegada na base</label><input type="time" class="c-ba" value="${esc(c.chegadaBase||'')}"></div>
+  <div class="f obs"><label>Observação</label><input class="c-obs" value="${esc(c.obs||'')}"></div>
+  <button type="button" class="btn x" title="Remover cliente" aria-label="Remover cliente">×</button>`;
+  d.querySelector('.x').onclick=()=>{d.remove();if(!$('#coletas').children.length)$('#coletas').append(colRow());};
+  return d;
+}
+$('#addCol').onclick=()=>$('#coletas').append(colRow());
+function resetExp(){S.editExp=null;$('#editExp').style.display='none';$('#e-data').value=today();$('#e-veic').value='Carreta';['#e-disp','#e-ini','#e-lib'].forEach(s=>$(s).value='');$('#coletas').innerHTML='';for(let i=0;i<3;i++)$('#coletas').append(colRow());$('#saveExp').textContent='Salvar liberação';}
+$('#clearExp').onclick=()=>{resetExp();msg('','')};
+$('#saveExp').onclick=async()=>{
+  if(!S.db)return msg('Banco indisponível nesta visualização.','err');
+  const data=$('#e-data').value;if(!data)return msg('Informe a data.','err');
+  const cols=$$('#coletas .colrow').map(r=>({cliente:r.querySelector('.c-cli').value.trim().toUpperCase(),chegada:r.querySelector('.c-ch').value||null,saida:r.querySelector('.c-sa').value||null,chegadaBase:r.querySelector('.c-ba').value||null,obs:r.querySelector('.c-obs').value.trim()})).filter(c=>c.cliente);
+  if(!cols.length)return msg('Informe ao menos um cliente.','err');
+  const doc={data,veiculo:$('#e-veic').value,disponivel:$('#e-disp').value||null,inicioCarregamento:$('#e-ini').value||null,liberado:$('#e-lib').value||null,coletas:cols,atualizadoEm:new Date().toISOString()};
+  const btn=$('#saveExp');btn.disabled=true;
+  try{
+    if(S.editExp)await setDoc(doc_(S.editExp),doc);else await addDoc(collection(S.db,'expressos'),doc);
+    msg((S.editExp?'Liberação atualizada':'Liberação salva')+' · '+fdateL(data),'ok');resetExp();
+  }catch(e){msg(errTxt(e),'err')}finally{btn.disabled=false}
+};
+
+/* ---------- registros ---------- */
+function renderReg(){
+  const er=rows().reverse();
+  $('#regExp').innerHTML=er.length?`<table><thead><tr><th>Data</th><th>Veículo</th><th>Disponível</th><th>Início carreg.</th><th>Liberado</th><th>Clientes (chegada · saída · base)</th><th></th></tr></thead><tbody>${er.map(r=>`<tr>
+    <td class="t">${fdateL(r.data)}</td><td>${esc(r.veiculo)}</td><td class="t">${esc(r.disponivel||'—')}</td><td class="t">${esc(r.inicioCarregamento||'—')}</td><td class="t">${esc(r.liberado||'—')}</td>
+    <td>${(r.coletas||[]).map(c=>`<span class="chip" title="${esc(c.obs)}"><b>${esc(c.cliente)}</b> ${esc(c.chegada||'—')} · ${esc(c.saida||'—')} · ${esc(c.chegadaBase||'—')}${c.obs?' *':''}</span>`).join('')}</td>
+    <td style="white-space:nowrap"><button class="btn lnk" data-ee="${esc(r.id)}">Editar</button><button class="btn lnk del" data-de="${esc(r.id)}">Excluir</button></td></tr>`).join('')}</tbody></table>`:'<div class="empty">Nenhuma liberação no período. Use a aba Lançar para registrar.</div>';
+  $$('[data-ee]').forEach(b=>b.onclick=()=>editExp(b.dataset.ee));
+  $$('[data-de]').forEach(b=>b.onclick=async()=>{if(!S.db||!confirm('Excluir esta liberação?'))return;try{await deleteDoc(doc_(b.dataset.de))}catch(e){alert(errTxt(e))}});
+}
+function editExp(id){const r=S.exp.find(x=>x.id===id);if(!r)return;showTab('lancar');S.editExp=id;
+  $('#editExp').style.display='block';$('#editExp').textContent='Editando liberação de '+fdateL(r.data)+' · '+r.veiculo;
+  $('#e-data').value=r.data;$('#e-veic').value=r.veiculo||'Carreta';$('#e-disp').value=r.disponivel||'';$('#e-ini').value=r.inicioCarregamento||'';$('#e-lib').value=r.liberado||'';
+  $('#coletas').innerHTML='';(r.coletas&&r.coletas.length?r.coletas:[{}]).forEach(c=>$('#coletas').append(colRow(c)));$('#saveExp').textContent='Salvar alterações';msg('','');scrollTo(0,0);}
+
+function today(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function msg(t,c){const el=$('#msgExp');el.textContent=t;el.className='msg '+c;if(c==='ok')setTimeout(()=>{if(el.textContent===t)el.textContent=''},5000)}
+function errTxt(e){const c=e&&e.code;if(c==='permission-denied')return'Você não tem permissão para gravar neste painel.';return'Não foi possível salvar. Tente de novo.'}
+function renderAll(){buildPeriod();const cl=[...new Set(S.exp.flatMap(r=>(r.coletas||[]).map(c=>c.cliente)).filter(Boolean))].sort();$('#dlCli').innerHTML=cl.map(c=>`<option value="${esc(c)}">`).join('');renderDash();renderReg();}
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change',renderDash);
+new MutationObserver(renderDash).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+resetExp();renderAll();
+(()=>{
+  const ban=t=>{const b=$('#banner');b.style.display='block';b.textContent=t;};
+  if(!firebaseConfig||!firebaseConfig.projectId||String(firebaseConfig.apiKey).includes('COLE')){ban('Configure o Firebase no arquivo firebase-config.js para carregar e lançar os dados.');return;}
+  try{S.db=getFirestore(initializeApp(firebaseConfig));}catch(e){ban('Não foi possível iniciar o Firebase. Confira o firebase-config.js.');return;}
+  onSnapshot(query(collection(S.db,'expressos'),orderBy('data')),s=>{S.exp=s.docs.map(d=>({id:d.id,...d.data()}));renderAll();},
+    e=>ban(e.code==='permission-denied'?'Sem permissão para ler os dados. Confira as regras do Firestore.':'Falha ao carregar os dados ('+e.code+'). Recarregue a página.'));
+})();
+})();
+</script>
+</body>
+</html>
